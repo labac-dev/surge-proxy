@@ -1,0 +1,99 @@
+syntax = "proto3";
+package youtube.response.browse;
+
+option go_package = "github.com/labac-dev/surge-proxy/internal/youtube/gen/response/browse";
+
+import "protobuf/component/framework.proto";
+import "protobuf/component/context.proto";
+import "protobuf/component/label.proto";
+
+message Browse{
+  youtube.component.ResponseContext responseContext = 1;
+  Content content = 9;
+  Content onResponseReceivedAction = 10;
+  youtube.component.FrameworkUpdateTransport frameworkUpdateTransport = 777;
+}
+
+message Content{
+  SingleColumnResultsRenderer singleColumnResultsRenderer = 58173949;
+  ElementRenderer elementRenderer = 153515154;
+  SectionListRenderer sectionListRenderer = 49399797;
+  RelatedChipContinuation relatedChipContinuation = 196516197;
+}
+
+message SingleColumnResultsRenderer{
+  repeated BrowseTabSupportedRenderer tabs = 1;
+}
+message BrowseTabSupportedRenderer{
+  TabRenderer tabRenderer = 58174010;
+}
+message TabRenderer{
+  Content content = 4;
+}
+message SectionListRenderer{
+  repeated SectionListSupportedRenderer sectionListSupportedRenderers = 1;
+}
+message SectionListSupportedRenderer{
+  ItemSectionRenderer itemSectionRenderer = 50195462;
+  ShelfRenderer shelfRenderer = 51845067;
+  MusicDescriptionShelfRenderer musicDescriptionShelfRenderer = 221496734;
+}
+message ItemSectionRenderer{
+  repeated RichItemContent richItemContent = 1;
+}
+message RichItemContent{
+  ElementRenderer videoWithContextRenderer = 153515154;
+}
+message RelatedChipContinuation{
+  repeated SectionListSupportedRenderer sectionListSupportedRenderers = 1;
+}
+
+message ElementRenderer{
+  VideoRendererContent videoRendererContent = 172660663;
+}
+
+message VideoRendererContent{
+  VideoInfo videoInfo = 1;
+  RenderInfo renderInfo = 2;
+}
+
+message VideoInfo{
+  VideoContext videoContext = 168777401;
+}
+message VideoContext{
+  VideoRender videoRender = 3;
+  VideoContent videoContent = 5;
+}
+message VideoRender {
+  string eml = 172035250;
+}
+message VideoContent{
+  bytes payload = 232954548;
+  TimedLyricsRender timedLyricsRender = 465160965;
+}
+message TimedLyricsRender{
+  TimedLyricsContent timedLyricsContent = 4;
+}
+message TimedLyricsContent{
+  repeated youtube.component.Run runs = 1;
+  string footerLabel = 2;
+}
+message RenderInfo{
+  LayoutRender layoutRender = 183314536;
+}
+message LayoutRender{
+  string eml = 1;
+}
+message ShelfRenderer{
+  RichSectionContent richSectionContent = 5;
+}
+message RichSectionContent{
+  ReelShelfRenderer reelShelfRenderer = 51431404;
+}
+message ReelShelfRenderer{
+  repeated RichItemContent richItemContent = 1;
+}
+message MusicDescriptionShelfRenderer{
+  youtube.component.Label description = 3;
+  youtube.component.Label footer = 10;
+}

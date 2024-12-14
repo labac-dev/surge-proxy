@@ -1,0 +1,24 @@
+syntax = "proto3";
+package youtube.component;
+
+option go_package = "github.com/labac-dev/surge-proxy/internal/youtube/gen/component";
+
+message FrameworkUpdateTransport{
+  EntityBatchUpdate entityBatchUpdate = 1;
+}
+message EntityBatchUpdate{
+  repeated Mutation mutations = 1;
+}
+message Mutation{
+  string entityKey = 1;
+  int32 type = 2;
+  Payload payload = 3;
+}
+message Payload{
+
+}
+message Entity{
+  string name = 2;
+  int32 targetNo = 4;
+  int32 type = 5;
+}

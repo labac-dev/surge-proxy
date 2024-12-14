@@ -1,0 +1,19 @@
+syntax = "proto3";
+package youtube.request.common;
+
+option go_package = "github.com/labac-dev/surge-proxy/internal/youtube/gen/request/common";
+
+message Request{
+  Context context = 1;
+}
+message  Context{
+  AdSignalsInfo adSignalsInfo = 9;
+}
+message AdSignalsInfo{
+  repeated Params params = 1;
+}
+message Params{
+  string key = 1;
+  string value = 2;
+}
+

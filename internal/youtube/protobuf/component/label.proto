@@ -1,0 +1,11 @@
+syntax = "proto3";
+package youtube.component;
+
+option go_package = "github.com/labac-dev/surge-proxy/internal/youtube/gen/component";
+
+message Label{
+  repeated Run runs = 1;
+}
+message Run{
+  string text = 1;
+}

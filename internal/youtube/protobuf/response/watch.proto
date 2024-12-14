@@ -1,0 +1,16 @@
+syntax = "proto3";
+package youtube.response.watch;
+
+option go_package = "github.com/labac-dev/surge-proxy/internal/youtube/gen/response/watch";
+
+import "protobuf/response/player.proto";
+import "protobuf/response/next.proto";
+
+message Watch{
+  repeated Content contents = 1;
+}
+
+message Content{
+  youtube.response.player.Player player = 2;
+  youtube.response.next.Next next = 3;
+}
