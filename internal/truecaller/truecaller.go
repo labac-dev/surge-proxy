@@ -1,23 +1,108 @@
 package truecaller
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/labac-dev/surge-proxy/internal/common"
 )
 
-const (
-	STATUS_RESPONSE = `{"expire":"2030-01-01T00:00:00Z","start":"2025-01-01T00:00:00Z","paymentProvider":"Apple","isExpired":false,"isGracePeriodExpired":false,"inAppPurchaseAllowed":false,"product":{"id":"renewable.premiumgold.annual","sku":"renewable.premiumgold.annual","contentType":"subscription","productType":"GoldYearly","isFreeTrial":false},"tier":{"id":"gold","feature":[{"id":"premium_feature","rank":-2147483648,"status":"Included","isFree":false},{"id":"no_ads","rank":1,"status":"Included","isFree":false},{"id":"extended_spam_blocking","rank":2,"status":"Included","isFree":false},{"id":"advanced_caller_id","rank":3,"status":"Included","isFree":false},{"id":"live_lookup","rank":4,"status":"Included","isFree":false},{"id":"verified_badge","rank":5,"status":"Included","isFree":false},{"id":"spam_stats","rank":6,"status":"Included","isFree":false},{"id":"auto_spam_block","rank":7,"status":"Included","isFree":false},{"id":"call_alert","rank":8,"status":"Included","isFree":false},{"id":"identifai","rank":14,"status":"Included","isFree":false},{"id":"siri_search","rank":15,"status":"Included","isFree":false},{"id":"who_viewed_my_profile","rank":16,"status":"Included","isFree":false},{"id":"incognito_mode","rank":19,"status":"Included","isFree":false},{"id":"premium_badge","rank":20,"status":"Included","isFree":false},{"id":"premium_app_icon","rank":21,"status":"Included","isFree":false},{"id":"live_chat_support","rank":23,"status":"Included","isFree":false},{"id":"premium_support","rank":24,"status":"Included","isFree":false},{"id":"family_sharing","rank":25,"status":"Excluded","isFree":false},{"id":"gold_caller_id","rank":26,"status":"Included","isFree":false}]},"scope":"paid_gold"}`
-	PLAN_RESPONSE   = `{"tier":[]}`
-)
+type Product struct {
+	ID          string `json:"id"`
+	SKU         string `json:"sku"`
+	ContentType string `json:"contentType"`
+	ProductType string `json:"productType"`
+	IsFreeTrial bool   `json:"isFreeTrial"`
+}
+
+type Feature struct {
+	ID     string `json:"id"`
+	Rank   int    `json:"rank"`
+	Status string `json:"status"`
+	IsFree bool   `json:"isFree"`
+}
+
+type Tier struct {
+	ID      string    `json:"id"`
+	Feature []Feature `json:"feature"`
+}
+
+type StatusResponse struct {
+	Expire               string  `json:"expire"`
+	Start                string  `json:"start"`
+	PaymentProvider      string  `json:"paymentProvider"`
+	IsExpired            bool    `json:"isExpired"`
+	IsGracePeriodExpired bool    `json:"isGracePeriodExpired"`
+	InAppPurchaseAllowed bool    `json:"inAppPurchaseAllowed"`
+	Product              Product `json:"product"`
+	Tier                 Tier    `json:"tier"`
+	Scope                string  `json:"scope"`
+}
+
+type PlanResponse struct {
+	Tier []interface{} `json:"tier"`
+}
+
+var statusResponse = StatusResponse{
+	Expire:               "2030-01-01T00:00:00Z",
+	Start:                "2025-01-01T00:00:00Z",
+	PaymentProvider:      "Apple",
+	IsExpired:            false,
+	IsGracePeriodExpired: false,
+	InAppPurchaseAllowed: false,
+	Product: Product{
+		ID:          "renewable.premiumgold.annual",
+		SKU:         "renewable.premiumgold.annual",
+		ContentType: "subscription",
+		ProductType: "GoldYearly",
+		IsFreeTrial: false,
+	},
+	Tier: Tier{
+		ID: "gold",
+		Feature: []Feature{
+			{ID: "premium_feature", Rank: -2147483648, Status: "Included", IsFree: false},
+			{ID: "no_ads", Rank: 1, Status: "Included", IsFree: false},
+			{ID: "extended_spam_blocking", Rank: 2, Status: "Included", IsFree: false},
+			{ID: "advanced_caller_id", Rank: 3, Status: "Included", IsFree: false},
+			{ID: "live_lookup", Rank: 4, Status: "Included", IsFree: false},
+			{ID: "verified_badge", Rank: 5, Status: "Included", IsFree: false},
+			{ID: "spam_stats", Rank: 6, Status: "Included", IsFree: false},
+			{ID: "auto_spam_block", Rank: 7, Status: "Included", IsFree: false},
+			{ID: "call_alert", Rank: 8, Status: "Included", IsFree: false},
+			{ID: "identifai", Rank: 14, Status: "Included", IsFree: false},
+			{ID: "siri_search", Rank: 15, Status: "Included", IsFree: false},
+			{ID: "who_viewed_my_profile", Rank: 16, Status: "Included", IsFree: false},
+			{ID: "incognito_mode", Rank: 19, Status: "Included", IsFree: false},
+			{ID: "premium_badge", Rank: 20, Status: "Included", IsFree: false},
+			{ID: "premium_app_icon", Rank: 21, Status: "Included", IsFree: false},
+			{ID: "live_chat_support", Rank: 23, Status: "Included", IsFree: false},
+			{ID: "premium_support", Rank: 24, Status: "Included", IsFree: false},
+			{ID: "family_sharing", Rank: 25, Status: "Excluded", IsFree: false},
+			{ID: "gold_caller_id", Rank: 26, Status: "Included", IsFree: false},
+		},
+	},
+	Scope: "paid_gold",
+}
+
+var planResponse = PlanResponse{
+	Tier: []interface{}{},
+}
 
 func ModifyResponse(res *http.Response) error {
 	if res.Request.URL.Path == "/v3/subscriptions/status" {
-		return common.Response(res, []byte(STATUS_RESPONSE))
+		responseBytes, err := json.Marshal(statusResponse)
+		if err != nil {
+			return err
+		}
+		return common.Response(res, responseBytes)
 	}
 
 	if res.Request.URL.Path == "/v7/products/apple" {
-		return common.Response(res, []byte(PLAN_RESPONSE))
+		responseBytes, err := json.Marshal(planResponse)
+		if err != nil {
+			return err
+		}
+		return common.Response(res, responseBytes)
 	}
 
 	return nil
