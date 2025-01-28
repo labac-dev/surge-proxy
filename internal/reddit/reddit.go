@@ -1,11 +1,12 @@
 package reddit
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 
-	"github.com/labac-dev/surge-proxy/internal/common"
 	"github.com/itchyny/gojq"
+	"github.com/labac-dev/surge-proxy/internal/common"
 )
 
 const QueryString = `del(.. | select(
@@ -13,34 +14,19 @@ const QueryString = `del(.. | select(
 	.node?.adEvents or
 	.adEvents or
 	.__typename == "AdPost"
-)) | walk(
-	if type == "object" and has("isGildable") then
-		.isGildable = false
-	else
-		.
-	end
-)`
+))`
 
-var code *gojq.Code
+var query *gojq.Query
 
 func init() {
-	var (
-		err   error
-		query *gojq.Query
-	)
+	var err error
 
 	query, err = gojq.Parse(QueryString)
 	if err != nil {
 		panic(err)
 	}
-
-	code, err = gojq.Compile(query)
-	if err != nil {
-		panic(err)
-	}
 }
 
-// ModifyResponse modifies the response from reddit
 func ModifyResponse(res *http.Response) error {
 	var (
 		data interface{}
@@ -48,12 +34,11 @@ func ModifyResponse(res *http.Response) error {
 		body []byte
 	)
 
-	err = json.NewDecoder(res.Body).Decode(&data)
-	if err != nil {
+	if err = json.NewDecoder(res.Body).Decode(&data); err != nil {
 		return err
 	}
 
-	iter := code.Run(data)
+	iter := query.Run(data)
 	v, _ := iter.Next()
 
 	if err, ok := v.(error); ok {
@@ -63,6 +48,17 @@ func ModifyResponse(res *http.Response) error {
 	body, err = gojq.Marshal(v)
 	if err != nil {
 		return err
+	}
+
+	replacements := map[string]string{
+		`"isGildable":true`:       `"isGildable":false`,
+		`"isPremiumMember":false`: `"isPremiumMember":true`,
+		`"isSubscribed":false`:    `"isSubscribed":true`,
+		`"isEmployee":false`:      `"isEmployee":true`,
+	}
+
+	for old, new := range replacements {
+		body = bytes.ReplaceAll(body, []byte(old), []byte(new))
 	}
 
 	return common.Response(res, body)
