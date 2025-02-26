@@ -89,7 +89,7 @@ var planResponse = PlanResponse{
 }
 
 func ModifyResponse(res *http.Response) error {
-	if res.Request.URL.Path == "/v3/subscriptions/status" {
+	if res.Request.URL.Path == "/v4/subscriptions/status" {
 		responseBytes, err := json.Marshal(statusResponse)
 		if err != nil {
 			return err
